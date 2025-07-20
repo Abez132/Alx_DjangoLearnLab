@@ -30,12 +30,28 @@ def create_sample_data():
     }
 
 def query_all_books_by_author(author_name):
-    """Query all books by a specific author"""
-    books = Book.objects.filter(author__name=author_name)
-    print(f"\nAll books by {author_name}:")
-    for book in books:
+    """Query all books by a specific author using both requested methods"""
+    # Method 1: Using author's name directly
+    books_by_name = Book.objects.filter(author__name=author_name)
+    
+    # Method 2: First get author, then filter books
+    try:
+        author = Author.objects.get(name=author_name)
+        books_by_author_obj = Book.objects.filter(author=author)
+    except Author.DoesNotExist:
+        books_by_author_obj = Book.objects.none()
+    
+    # Verify both methods return same results
+    assert set(books_by_name) == set(books_by_author_obj)
+    
+    print(f"\nAll books by {author_name} (using both query methods):")
+    for book in books_by_name:
         print(f"- {book.title}")
-    return books
+    
+    return {
+        'by_name': books_by_name,
+        'by_author_obj': books_by_author_obj
+    }
 
 def list_all_books_in_library(library_name):
     """List all books in a library"""
