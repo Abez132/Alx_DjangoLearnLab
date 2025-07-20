@@ -30,28 +30,13 @@ def create_sample_data():
     }
 
 def query_all_books_by_author(author_name):
-    """Query all books by a specific author using both requested methods"""
-    # Method 1: Using author's name directly
-    books_by_name = Book.objects.filter(author__name=author_name)
-    
-    # Method 2: First get author, then filter books
-    try:
-        author = Author.objects.get(name=author_name)
-        books_by_author_obj = Book.objects.filter(author=author)
-    except Author.DoesNotExist:
-        books_by_author_obj = Book.objects.none()
-    
-    # Verify both methods return same results
-    assert set(books_by_name) == set(books_by_author_obj)
-    
-    print(f"\nAll books by {author_name} (using both query methods):")
-    for book in books_by_name:
+    """Query all books by a specific author"""
+    author = Author.objects.get(name=author_name)
+    books = Book.objects.filter(author=author)
+    print(f"\nAll books by {author_name}:")
+    for book in books:
         print(f"- {book.title}")
-    
-    return {
-        'by_name': books_by_name,
-        'by_author_obj': books_by_author_obj
-    }
+    return books
 
 def list_all_books_in_library(library_name):
     """List all books in a library"""
@@ -63,10 +48,25 @@ def list_all_books_in_library(library_name):
     return books
 
 def get_librarian_for_library(library_name):
-    """Retrieve the librarian for a library"""
-    librarian = Librarian.objects.get(library__name=library_name)
-    print(f"\nLibrarian for {library_name}: {librarian.name}")
-    return librarian
+    """Retrieve the librarian for a library using different query methods"""
+    # Method 1: Using library__name lookup
+    librarian1 = Librarian.objects.get(library__name=library_name)
+    
+    # Method 2: First get library, then get librarian
+    library = Library.objects.get(name=library_name)
+    librarian2 = Librarian.objects.get(library=library)
+    
+    # Verify both methods return same librarian
+    assert librarian1 == librarian2
+    
+    print(f"\nLibrarian for {library_name} (using both query methods):")
+    print(f"- Method 1 (library__name): {librarian1.name}")
+    print(f"- Method 2 (library object): {librarian2.name}")
+    
+    return {
+        'by_library_name': librarian1,
+        'by_library_obj': librarian2
+    }
 
 def run_all_queries():
     # First create sample data
