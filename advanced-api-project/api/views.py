@@ -6,7 +6,8 @@ Currently contains placeholder views that can be expanded as needed.
 """
 
 from django.shortcuts import render
-from rest_framework import viewsets, generics, permissions, filters
+from django_filters import rest_framework as django_filters
+from rest_framework import generics, permissions, filters
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
