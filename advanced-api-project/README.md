@@ -31,7 +31,8 @@ advanced-api-project/
 │   ├── views.py                  # API views
 │   ├── filters.py                # Custom filters
 │   ├── urls.py                   # App URL routing
-│   ├── tests.py                  # Unit tests
+│   ├── test_views.py             # API view tests
+│   ├── TESTING_APPROACH.md       # Testing documentation
 │   └── migrations/               # Database migrations
 │       └── __init__.py
 ├── manage.py                     # Django management script
@@ -133,10 +134,28 @@ For detailed information about each endpoint, permissions, and testing instructi
 
 ## Testing
 
-Run tests with:
+The project includes comprehensive unit tests for all API endpoints, focusing on:
+
+- CRUD operations for the Book model endpoints
+- Filtering, searching, and ordering functionalities
+- Permissions and authentication mechanisms
+- Response data integrity and status code accuracy
+
+### Running Tests
+
+To run the test suite, use Django's manage.py command:
+
 ```bash
-python manage.py test
+python manage.py test api.test_views
 ```
+
+This will run all tests in the `test_views.py` file which contains:
+- 22 comprehensive tests covering all API functionality
+- Tests for both successful operations and error conditions
+- Tests for authentication and permission enforcement
+- Tests for data integrity and response validation
+
+For detailed information about the testing approach, see [TESTING_APPROACH.md](api/TESTING_APPROACH.md)
 
 ## Validation
 
