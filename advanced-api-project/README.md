@@ -109,6 +109,8 @@ For detailed documentation on view configurations, see [README_VIEWS.md](api/REA
 - `/api/books/list/` - List all books (GET)
 - `/api/books/<int:pk>/` - Retrieve a specific book (GET)
 - `/api/books/create/` - Create a new book (POST)
+- `/api/books/update/` - Update a book (PUT/PATCH) - ID in request data
+- `/api/books/delete/` - Delete a book (DELETE) - ID in request data
 - `/api/books/<int:pk>/update/` - Update a specific book (PUT/PATCH)
 - `/api/books/<int:pk>/delete/` - Delete a specific book (DELETE)
 

@@ -42,24 +42,30 @@ The API implements CRUD operations for the Book model using Django REST Framewor
 
 ### 4. BookUpdateView (UpdateAPIView)
 - **Purpose**: Update an existing book
-- **Endpoint**: `/api/books/<int:pk>/update/`
-- **HTTP Method**: PUT/PATCH
+- **Endpoints**: 
+  - `/api/books/<int:pk>/update/` (recommended - with book ID)
+  - `/api/books/update/` (alternative - without book ID, requires ID in request data)
+- **HTTP Methods**: PUT/PATCH
 - **Permissions**: IsAuthenticated (requires authentication)
 - **Serializer**: BookSerializer
 - **Features**:
   - Validates publication year (cannot be in the future)
   - Requires authenticated user to modify books
   - Returns 200 on successful update
+  - Note: The endpoint without ID in URL requires the book ID to be specified in the request data
 
 ### 5. BookDeleteView (DestroyAPIView)
 - **Purpose**: Delete a book
-- **Endpoint**: `/api/books/<int:pk>/delete/`
+- **Endpoints**: 
+  - `/api/books/<int:pk>/delete/` (recommended - with book ID)
+  - `/api/books/delete/` (alternative - without book ID, requires ID in request data)
 - **HTTP Method**: DELETE
 - **Permissions**: IsAuthenticated (requires authentication)
 - **Serializer**: BookSerializer
 - **Features**:
   - Requires authenticated user to delete books
   - Returns 204 on successful deletion
+  - Note: The endpoint without ID in URL requires the book ID to be specified in the request data
 
 ## Permissions Configuration
 
@@ -113,7 +119,7 @@ You can test these views using tools like Postman or curl:
         -d '{"title": "Sample Book", "publication_year": 2023, "author": 1}'
    ```
 
-4. **Update a book** (authentication required):
+4. **Update a book with ID in URL** (authentication required):
    ```bash
    curl -X PUT http://localhost:8000/api/books/1/update/ \
         -H "Authorization: Token <your_token>" \
@@ -121,10 +127,26 @@ You can test these views using tools like Postman or curl:
         -d '{"title": "Updated Book Title", "publication_year": 2023, "author": 1}'
    ```
 
-5. **Delete a book** (authentication required):
+5. **Update a book without ID in URL** (authentication required):
+   ```bash
+   curl -X PUT http://localhost:8000/api/books/update/ \
+        -H "Authorization: Token <your_token>" \
+        -H "Content-Type: application/json" \
+        -d '{"id": 1, "title": "Updated Book Title", "publication_year": 2023, "author": 1}'
+   ```
+
+6. **Delete a book with ID in URL** (authentication required):
    ```bash
    curl -X DELETE http://localhost:8000/api/books/1/delete/ \
         -H "Authorization: Token <your_token>"
+   ```
+
+7. **Delete a book without ID in URL** (authentication required):
+   ```bash
+   curl -X DELETE http://localhost:8000/api/books/delete/ \
+        -H "Authorization: Token <your_token>" \
+        -H "Content-Type: application/json" \
+        -d '{"id": 1}'
    ```
 
 ## Notes
@@ -133,3 +155,5 @@ You can test these views using tools like Postman or curl:
 - The API follows REST conventions for HTTP methods and response codes
 - Error handling is automatically provided by DRF generic views
 - Pagination is enabled globally for list views
+- The endpoints without ID in the URL are provided for flexibility but require the ID to be specified in the request data, which is not a standard REST pattern
+- It is recommended to use the endpoints with ID in the URL for update and delete operations as they follow REST conventions
