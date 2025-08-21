@@ -134,6 +134,13 @@ class BookViewsTest(APITestCase):
             publication_year=2023,
             author=self.author
         )
+        # Create another author and book for filtering tests
+        self.author2 = Author.objects.create(name="Another Author")
+        self.book2 = Book.objects.create(
+            title="Another Book",
+            publication_year=2022,
+            author=self.author2
+        )
     
     def test_book_list_view(self):
         """Test the BookListView returns all books."""
@@ -142,9 +149,65 @@ class BookViewsTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Check if response is paginated
         if 'results' in response.data:
+            self.assertEqual(len(response.data['results']), 2)
+        else:
+            self.assertEqual(len(response.data), 2)
+    
+    def test_book_list_view_filtering_by_author(self):
+        """Test filtering books by author."""
+        url = reverse('book-list-view')
+        response = self.client.get(url, {'author': self.author.pk})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Check if response is paginated
+        if 'results' in response.data:
             self.assertEqual(len(response.data['results']), 1)
+            self.assertEqual(response.data['results'][0]['title'], "Test Book")
         else:
             self.assertEqual(len(response.data), 1)
+            self.assertEqual(response.data[0]['title'], "Test Book")
+    
+    def test_book_list_view_filtering_by_publication_year(self):
+        """Test filtering books by publication year."""
+        url = reverse('book-list-view')
+        response = self.client.get(url, {'publication_year': 2022})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Check if response is paginated
+        if 'results' in response.data:
+            self.assertEqual(len(response.data['results']), 1)
+            self.assertEqual(response.data['results'][0]['title'], "Another Book")
+        else:
+            self.assertEqual(len(response.data), 1)
+            self.assertEqual(response.data[0]['title'], "Another Book")
+    
+    def test_book_list_view_searching(self):
+        """Test searching books by title or author name."""
+        url = reverse('book-list-view')
+        response = self.client.get(url, {'search': 'Test'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Check if response is paginated
+        if 'results' in response.data:
+            self.assertEqual(len(response.data['results']), 1)
+            self.assertEqual(response.data['results'][0]['title'], "Test Book")
+        else:
+            self.assertEqual(len(response.data), 1)
+            self.assertEqual(response.data[0]['title'], "Test Book")
+    
+    def test_book_list_view_ordering(self):
+        """Test ordering books by title."""
+        url = reverse('book-list-view')
+        response = self.client.get(url, {'ordering': 'title'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Check if response is paginated
+        if 'results' in response.data:
+            self.assertEqual(len(response.data['results']), 2)
+            # Books should be ordered alphabetically by title
+            self.assertEqual(response.data['results'][0]['title'], "Another Book")
+            self.assertEqual(response.data['results'][1]['title'], "Test Book")
+        else:
+            self.assertEqual(len(response.data), 2)
+            # Books should be ordered alphabetically by title
+            self.assertEqual(response.data[0]['title'], "Another Book")
+            self.assertEqual(response.data[1]['title'], "Test Book")
     
     def test_book_detail_view(self):
         """Test the BookDetailView returns a specific book."""
@@ -176,7 +239,7 @@ class BookViewsTest(APITestCase):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         # Refresh from database to get updated count
-        self.assertEqual(Book.objects.count(), 2)
+        self.assertEqual(Book.objects.count(), 3)
         # Get the most recently created book
         new_book = Book.objects.order_by('-id').first()
         self.assertEqual(new_book.title, 'New Book')
@@ -218,4 +281,4 @@ class BookViewsTest(APITestCase):
         url = reverse('book-delete-view', kwargs={'pk': self.book.pk})
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(Book.objects.count(), 0)
+        self.assertEqual(Book.objects.count(), 1)

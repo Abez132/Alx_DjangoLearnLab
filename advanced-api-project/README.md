@@ -9,6 +9,7 @@ The project includes:
 - Custom serializers with nested object handling
 - Data validation for business rules (publication year cannot be in the future)
 - Generic views for CRUD operations with proper permissions
+- Advanced query capabilities (filtering, searching, and ordering)
 - Comprehensive documentation for models, serializers, and views
 
 ## Project Structure
@@ -28,6 +29,7 @@ advanced-api-project/
 │   ├── models.py                 # Data models (Author, Book)
 │   ├── serializers.py            # Custom serializers
 │   ├── views.py                  # API views
+│   ├── filters.py                # Custom filters
 │   ├── urls.py                   # App URL routing
 │   ├── tests.py                  # Unit tests
 │   └── migrations/               # Database migrations
@@ -62,7 +64,7 @@ advanced-api-project/
 The project implements generic views for CRUD operations on the Book model:
 
 ### Generic Views
-- `BookListView`: Retrieve all books (read-only, public access)
+- `BookListView`: Retrieve all books with filtering, searching, and ordering capabilities
 - `BookDetailView`: Retrieve a single book by ID (read-only, public access)
 - `BookCreateView`: Create a new book (authenticated access only)
 - `BookUpdateView`: Update an existing book (authenticated access only)
@@ -106,13 +108,26 @@ For detailed documentation on view configurations, see [README_VIEWS.md](api/REA
 - `/api/books/` - List all books
 
 ### Generic View Endpoints
-- `/api/books/list/` - List all books (GET)
+- `/api/books/list/` - List all books with filtering, searching, and ordering capabilities (GET)
 - `/api/books/<int:pk>/` - Retrieve a specific book (GET)
 - `/api/books/create/` - Create a new book (POST)
 - `/api/books/update/` - Update a book (PUT/PATCH) - ID in request data
 - `/api/books/delete/` - Delete a book (DELETE) - ID in request data
 - `/api/books/<int:pk>/update/` - Update a specific book (PUT/PATCH)
 - `/api/books/<int:pk>/delete/` - Delete a specific book (DELETE)
+
+### Advanced Query Examples
+
+Filtering:
+- Filter by author: `/api/books/list/?author=1`
+- Filter by publication year: `/api/books/list/?publication_year=2023`
+
+Searching:
+- Search in title and author name: `/api/books/list/?search=django`
+
+Ordering:
+- Order by title: `/api/books/list/?ordering=title`
+- Order by publication year: `/api/books/list/?ordering=publication_year`
 
 For detailed information about each endpoint, permissions, and testing instructions, see [README_VIEWS.md](api/README_VIEWS.md)
 
