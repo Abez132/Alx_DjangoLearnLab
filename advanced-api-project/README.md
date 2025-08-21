@@ -8,7 +8,8 @@ The project includes:
 - Django models for `Author` and `Book` with a one-to-many relationship
 - Custom serializers with nested object handling
 - Data validation for business rules (publication year cannot be in the future)
-- Comprehensive documentation for models and serializers
+- Generic views for CRUD operations with proper permissions
+- Comprehensive documentation for models, serializers, and views
 
 ## Project Structure
 
@@ -56,6 +57,19 @@ advanced-api-project/
 - Includes nested serialization of related books using BookSerializer
 - Dynamically serializes related books through the related_name='books'
 
+## Views
+
+The project implements generic views for CRUD operations on the Book model:
+
+### Generic Views
+- `BookListView`: Retrieve all books (read-only, public access)
+- `BookDetailView`: Retrieve a single book by ID (read-only, public access)
+- `BookCreateView`: Create a new book (authenticated access only)
+- `BookUpdateView`: Update an existing book (authenticated access only)
+- `BookDeleteView`: Delete a book (authenticated access only)
+
+For detailed documentation on view configurations, see [README_VIEWS.md](api/README_VIEWS.md)
+
 ## Setup Instructions
 
 1. Create a virtual environment:
@@ -87,8 +101,18 @@ advanced-api-project/
 
 ## API Endpoints
 
+### Original Endpoints
 - `/api/authors/` - List all authors with their books (nested)
 - `/api/books/` - List all books
+
+### Generic View Endpoints
+- `/api/books/list/` - List all books (GET)
+- `/api/books/<int:pk>/` - Retrieve a specific book (GET)
+- `/api/books/create/` - Create a new book (POST)
+- `/api/books/<int:pk>/update/` - Update a specific book (PUT/PATCH)
+- `/api/books/<int:pk>/delete/` - Delete a specific book (DELETE)
+
+For detailed information about each endpoint, permissions, and testing instructions, see [README_VIEWS.md](api/README_VIEWS.md)
 
 ## Testing
 

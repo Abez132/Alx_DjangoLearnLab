@@ -1,11 +1,14 @@
 """
 Tests for the API application.
 
-This module contains unit tests for the models and serializers in the API app.
+This module contains unit tests for the models, serializers, and views in the API app.
 """
 
 from django.test import TestCase
-from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
+from django.urls import reverse
+from rest_framework.test import APITestCase
+from rest_framework import status
 from datetime import datetime
 from .models import Author, Book
 from .serializers import AuthorSerializer, BookSerializer
@@ -114,3 +117,105 @@ class AuthorSerializerTest(TestCase):
         self.assertEqual(data['name'], "Test Author")
         self.assertEqual(len(data['books']), 1)
         self.assertEqual(data['books'][0]['title'], "Test Book")
+
+
+class BookViewsTest(APITestCase):
+    """Test cases for the Book generic views."""
+    
+    def setUp(self):
+        """Set up test data."""
+        self.user = User.objects.create_user(
+            username='testuser',
+            password='testpass123'
+        )
+        self.author = Author.objects.create(name="Test Author")
+        self.book = Book.objects.create(
+            title="Test Book",
+            publication_year=2023,
+            author=self.author
+        )
+    
+    def test_book_list_view(self):
+        """Test the BookListView returns all books."""
+        url = reverse('book-list-view')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Check if response is paginated
+        if 'results' in response.data:
+            self.assertEqual(len(response.data['results']), 1)
+        else:
+            self.assertEqual(len(response.data), 1)
+    
+    def test_book_detail_view(self):
+        """Test the BookDetailView returns a specific book."""
+        url = reverse('book-detail-view', kwargs={'pk': self.book.pk})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['title'], "Test Book")
+    
+    def test_book_create_view_unauthenticated(self):
+        """Test that BookCreateView requires authentication."""
+        url = reverse('book-create-view')
+        data = {
+            'title': 'New Book',
+            'publication_year': 2023,
+            'author': self.author.pk
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    
+    def test_book_create_view_authenticated(self):
+        """Test that authenticated users can create books."""
+        self.client.login(username='testuser', password='testpass123')
+        url = reverse('book-create-view')
+        data = {
+            'title': 'New Book',
+            'publication_year': 2023,
+            'author': self.author.pk
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        # Refresh from database to get updated count
+        self.assertEqual(Book.objects.count(), 2)
+        # Get the most recently created book
+        new_book = Book.objects.order_by('-id').first()
+        self.assertEqual(new_book.title, 'New Book')
+    
+    def test_book_update_view_unauthenticated(self):
+        """Test that BookUpdateView requires authentication."""
+        url = reverse('book-update-view', kwargs={'pk': self.book.pk})
+        data = {
+            'title': 'Updated Book',
+            'publication_year': 2023,
+            'author': self.author.pk
+        }
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    
+    def test_book_update_view_authenticated(self):
+        """Test that authenticated users can update books."""
+        self.client.login(username='testuser', password='testpass123')
+        url = reverse('book-update-view', kwargs={'pk': self.book.pk})
+        data = {
+            'title': 'Updated Book',
+            'publication_year': 2023,
+            'author': self.author.pk
+        }
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.book.refresh_from_db()
+        self.assertEqual(self.book.title, 'Updated Book')
+    
+    def test_book_delete_view_unauthenticated(self):
+        """Test that BookDeleteView requires authentication."""
+        url = reverse('book-delete-view', kwargs={'pk': self.book.pk})
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    
+    def test_book_delete_view_authenticated(self):
+        """Test that authenticated users can delete books."""
+        self.client.login(username='testuser', password='testpass123')
+        url = reverse('book-delete-view', kwargs={'pk': self.book.pk})
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Book.objects.count(), 0)
