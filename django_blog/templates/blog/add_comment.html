@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Comment - {{ post.title }}{% endblock %}
+
+{% block content %}
+    <div class="comment-form-container">
+        <h2>Add a Comment</h2>
+        
+        <div class="post-preview">
+            <h3>{{ post.title }}</h3>
+            <p class="post-meta">
+                By {{ post.author.username }} on {{ post.published_date|date:"F d, Y" }}
+            </p>
+            <p class="post-content">{{ post.content|truncatewords:50 }}</p>
+        </div>
+        
+        <form method="post" class="comment-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="{{ form.content.id_for_label }}">{{ form.content.label }}:</label>
+                {{ form.content }}
+                {% if form.content.help_text %}
+                    <small class="form-help">{{ form.content.help_text }}</small>
+                {% endif %}
+                {% if form.content.errors %}
+                    <div class="error">{{ form.content.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Post Comment</button>
+                <a href="{% url 'post_detail' post.pk %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

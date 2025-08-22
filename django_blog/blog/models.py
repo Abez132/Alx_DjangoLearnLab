@@ -24,3 +24,29 @@ class Post(models.Model):
     class Meta:
         """Meta options for the Post model."""
         ordering = ['-published_date']
+
+
+class Comment(models.Model):
+    """
+    Model representing a comment on a blog post.
+    
+    Attributes:
+        post (Post): The blog post this comment belongs to.
+        author (User): The user who wrote the comment.
+        content (str): The content of the comment.
+        created_at (datetime): The date and time when the comment was created.
+        updated_at (datetime): The date and time when the comment was last updated.
+    """
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        """String representation of the Comment model."""
+        return f'Comment by {self.author.username} on {self.post.title}'
+    
+    class Meta:
+        """Meta options for the Comment model."""
+        ordering = ['created_at']

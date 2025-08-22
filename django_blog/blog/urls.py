@@ -9,6 +9,12 @@ urlpatterns = [
     path('post/<int:pk>/update/', views.PostUpdateView.as_view(), name='post_update'),
     path('post/<int:pk>/delete/', views.PostDeleteView.as_view(), name='post_delete'),
     
+    # Comment CRUD operations
+    path('post/<int:pk>/comments/new/', views.CommentCreateView.as_view(), name='comment_create'),
+    path('comment/<int:pk>/update/', views.CommentUpdateView.as_view(), name='comment_update'),
+    path('comment/<int:pk>/delete/', views.CommentDeleteView.as_view(), name='comment_delete'),
+    path('post/<int:post_id>/comments/add/', views.add_comment, name='add_comment'),
+    
     # Authentication
     path('register/', views.register, name='register'),
     path('login/', views.user_login, name='login'),
