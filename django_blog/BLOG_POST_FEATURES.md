@@ -28,7 +28,7 @@ This Django blog project now includes comprehensive CRUD (Create, Read, Update, 
   - Author information displayed
 
 #### Update (UpdateView)
-- **URL**: `/post/<int:pk>/edit/`
+- **URL**: `/post/<int:pk>/update/`
 - **Access**: Post author only
 - **Functionality**:
   - Pre-populated form with existing post data
@@ -111,7 +111,7 @@ This Django blog project now includes comprehensive CRUD (Create, Read, Update, 
 path('', views.PostListView.as_view(), name='post_list'),
 path('post/<int:pk>/', views.PostDetailView.as_view(), name='post_detail'),
 path('post/new/', views.PostCreateView.as_view(), name='post_create'),
-path('post/<int:pk>/edit/', views.PostUpdateView.as_view(), name='post_update'),
+path('post/<int:pk>/update/', views.PostUpdateView.as_view(), name='post_update'),
 path('post/<int:pk>/delete/', views.PostDeleteView.as_view(), name='post_delete'),
 ```
 
