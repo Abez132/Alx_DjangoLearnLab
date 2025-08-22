@@ -3,18 +3,55 @@
 {% block title %}Blog Posts{% endblock %}
 
 {% block content %}
-    <h2>Latest Blog Posts</h2>
+    <div class="post-header">
+        <h2>Latest Blog Posts</h2>
+        {% if user.is_authenticated %}
+            <a href="{% url 'post_create' %}" class="btn btn-primary">Create New Post</a>
+        {% endif %}
+    </div>
     
     {% if posts %}
         {% for post in posts %}
             <div class="post">
-                <h3 class="post-title">{{ post.title }}</h3>
+                <h3 class="post-title">
+                    <a href="{% url 'post_detail' post.pk %}">{{ post.title }}</a>
+                </h3>
                 <p class="post-content">{{ post.content|truncatewords:30 }}</p>
-                <p class="post-date">Published on: {{ post.published_date|date:"F d, Y" }}</p>
-                <p class="post-author">Author: {{ post.author.username }}</p>
+                <div class="post-meta">
+                    <p class="post-date">Published on: {{ post.published_date|date:"F d, Y" }}</p>
+                    <p class="post-author">Author: {{ post.author.username }}</p>
+                </div>
+                <div class="post-actions">
+                    <a href="{% url 'post_detail' post.pk %}" class="btn btn-primary">Read More</a>
+                    {% if user == post.author %}
+                        <a href="{% url 'post_update' post.pk %}" class="btn btn-secondary">Edit</a>
+                        <a href="{% url 'post_delete' post.pk %}" class="btn btn-danger">Delete</a>
+                    {% endif %}
+                </div>
             </div>
         {% endfor %}
+        
+        {% if is_paginated %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1" class="btn">First</a>
+                    <a href="?page={{ page_obj.previous_page_number }}" class="btn">Previous</a>
+                {% endif %}
+                
+                <span class="current-page">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+                
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="btn">Next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}" class="btn">Last</a>
+                {% endif %}
+            </div>
+        {% endif %}
     {% else %}
         <p>No blog posts available.</p>
+        {% if user.is_authenticated %}
+            <p><a href="{% url 'post_create' %}" class="btn btn-primary">Create the first post!</a></p>
+        {% endif %}
     {% endif %}
 {% endblock %}

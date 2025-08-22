@@ -7,9 +7,18 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <style>
-        /* Additional styles for authentication */
+        /* Additional styles for authentication and CRUD operations */
         .auth-container {
             max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        
+        .form-container {
+            max-width: 800px;
             margin: 0 auto;
             padding: 20px;
             border: 1px solid #ddd;
@@ -27,12 +36,18 @@
             font-weight: bold;
         }
         
-        .form-group input {
+        .form-group input,
+        .form-group textarea {
             width: 100%;
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
             box-sizing: border-box;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 200px;
         }
         
         .btn {
@@ -42,6 +57,8 @@
             cursor: pointer;
             text-decoration: none;
             display: inline-block;
+            margin-right: 10px;
+            margin-bottom: 10px;
         }
         
         .btn-primary {
@@ -51,6 +68,24 @@
         
         .btn-primary:hover {
             background-color: #0056b3;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+        
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c82333;
         }
         
         .error {
@@ -95,6 +130,117 @@
         .nav a:hover {
             text-decoration: underline;
         }
+        
+        /* Post styles */
+        .post {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: white;
+        }
+        
+        .post-title {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        .post-title a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        
+        .post-title a:hover {
+            text-decoration: underline;
+        }
+        
+        .post-content {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .post-meta {
+            color: #888;
+            font-size: 0.9em;
+            margin: 10px 0;
+        }
+        
+        .post-actions {
+            margin-top: 15px;
+        }
+        
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        /* Post detail styles */
+        .post-detail {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .post-detail .post-title {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        
+        .post-detail .post-content {
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin: 30px 0;
+        }
+        
+        /* Delete confirmation styles */
+        .delete-confirmation {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #dc3545;
+            border-radius: 5px;
+            background-color: #fff5f5;
+        }
+        
+        .warning-message {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .post-preview {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        /* Pagination styles */
+        .pagination {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .pagination .btn {
+            margin: 0 5px;
+        }
+        
+        .current-page {
+            display: inline-block;
+            margin: 0 15px;
+            font-weight: bold;
+        }
+        
+        /* Form actions */
+        .form-actions {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
     </style>
 </head>
 <body>
@@ -102,6 +248,9 @@
         <div class="nav">
             <div>
                 <a href="{% url 'post_list' %}">Home</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'post_create' %}">Create Post</a>
+                {% endif %}
             </div>
             <div>
                 {% if user.is_authenticated %}

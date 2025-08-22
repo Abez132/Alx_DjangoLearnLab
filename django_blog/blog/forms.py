@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from .models import Post
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -46,3 +47,23 @@ class UserProfileForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         # Make username read-only
         self.fields['username'].widget.attrs['readonly'] = True
+
+
+class PostForm(forms.ModelForm):
+    """
+    Form for creating and editing blog posts.
+    """
+    class Meta:
+        model = Post
+        fields = ['title', 'content']
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter post title...'
+            }),
+            'content': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 10,
+                'placeholder': 'Write your blog post content here...'
+            })
+        }
