@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Blog Posts{% endblock %}
+
+{% block content %}
+    <h2>Latest Blog Posts</h2>
+    
+    {% if posts %}
+        {% for post in posts %}
+            <div class="post">
+                <h3 class="post-title">{{ post.title }}</h3>
+                <p class="post-content">{{ post.content|truncatewords:30 }}</p>
+                <p class="post-date">Published on: {{ post.published_date|date:"F d, Y" }}</p>
+                <p class="post-author">Author: {{ post.author.username }}</p>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No blog posts available.</p>
+    {% endif %}
+{% endblock %}
