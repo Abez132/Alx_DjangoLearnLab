@@ -53,28 +53,33 @@ django_blog/
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
-2. Install Django:
+2. Install Django and psycopg2:
    ```bash
-   pip install django
+   pip install django psycopg2
    ```
 
-3. Run migrations:
+3. Set up PostgreSQL database:
+   - Install PostgreSQL on your system
+   - Create a database named `django_blog`
+   - Create a user `postgres` with password `postgres` (or update settings.py with your credentials)
+
+4. Run migrations:
    ```bash
    python manage.py makemigrations
    python manage.py migrate
    ```
 
-4. Create a superuser (optional):
+5. Create a superuser (optional):
    ```bash
    python manage.py createsuperuser
    ```
 
-5. Run the development server:
+6. Run the development server:
    ```bash
    python manage.py runserver
    ```
 
-6. Open a browser and go to http://127.0.0.1:8000/ to see the blog
+7. Open a browser and go to http://127.0.0.1:8000/ to see the blog
 
 ## Models
 
@@ -103,3 +108,26 @@ The Post model is registered in the Django admin with:
 - `css/style.css`: Basic styling for the blog
 - `js/script.js`: Basic JavaScript functionality
 - `images/`: Directory for image files (currently empty)
+
+## Database Configuration
+
+This project is configured to use PostgreSQL instead of SQLite. The database settings in `django_blog/settings.py` are:
+
+```python
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'django_blog',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
+```
+
+Make sure to:
+1. Install PostgreSQL on your system
+2. Create a database named `django_blog`
+3. Ensure the PostgreSQL service is running
+4. Update the credentials in settings.py if needed
