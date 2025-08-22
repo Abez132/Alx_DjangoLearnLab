@@ -10,6 +10,7 @@ The authentication system includes the following features:
 - User profile management
 - Secure password handling
 - CSRF protection
+- Dedicated static files for authentication pages
 
 ## Components
 
@@ -100,6 +101,18 @@ Profile management template with:
 - First name field
 - Last name field
 - Form validation errors
+
+### Static Files
+
+#### auth.css
+Dedicated CSS file for authentication pages with:
+- Form styling
+- Button styling
+- Error message styling
+- Alert message styling
+- Responsive design
+
+The auth.css file is included in each authentication template to provide consistent styling across all authentication pages.
 
 ### URL Configuration
 
