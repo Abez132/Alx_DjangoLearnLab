@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Post, Comment
+from .models import Post, Comment, Tag
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -53,9 +53,18 @@ class PostForm(forms.ModelForm):
     """
     Form for creating and editing blog posts.
     """
+    tags_input = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter tags separated by commas (e.g., django, python, web-development)'
+        }),
+        help_text='Separate multiple tags with commas'
+    )
+    
     class Meta:
         model = Post
-        fields = ['title', 'content']
+        fields = ['title', 'content', 'tags']
         widgets = {
             'title': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -65,8 +74,63 @@ class PostForm(forms.ModelForm):
                 'class': 'form-control',
                 'rows': 10,
                 'placeholder': 'Write your blog post content here...'
+            }),
+            'tags': forms.SelectMultiple(attrs={
+                'class': 'form-control',
+                'style': 'display: none;'  # Hide the default widget
             })
         }
+    
+    def __init__(self, *args, **kwargs):
+        """Initialize the form with existing tags."""
+        super().__init__(*args, **kwargs)
+        if self.instance.pk:
+            # For editing, populate tags_input with existing tags
+            self.fields['tags_input'].initial = ', '.join([tag.name for tag in self.instance.tags.all()])
+    
+    def clean_tags_input(self):
+        """Clean and process the tags input field."""
+        tags_input = self.cleaned_data.get('tags_input', '').strip()
+        if not tags_input:
+            return []
+        
+        # Split by comma and clean each tag
+        tag_names = [name.strip() for name in tags_input.split(',') if name.strip()]
+        
+        # Validate tag length
+        for tag_name in tag_names:
+            if len(tag_name) > 50:
+                raise forms.ValidationError(f'Tag "{tag_name}" is too long. Maximum length is 50 characters.')
+            if len(tag_name) < 2:
+                raise forms.ValidationError(f'Tag "{tag_name}" is too short. Minimum length is 2 characters.')
+        
+        return tag_names
+    
+    def save(self, commit=True):
+        """Save the post and create/update tags."""
+        post = super().save(commit=False)
+        
+        if commit:
+            post.save()
+            
+            # Clear existing tags
+            post.tags.clear()
+            
+            # Get cleaned tag names
+            tag_names = self.cleaned_data.get('tags_input', '').strip()
+            if tag_names:
+                # Split and process tags
+                tag_names = [name.strip() for name in tag_names.split(',') if name.strip()]
+                
+                # Create or get existing tags
+                for tag_name in tag_names:
+                    tag, created = Tag.objects.get_or_create(name=tag_name.lower())
+                    post.tags.add(tag)
+            
+            # Save many-to-many relationships
+            self.save_m2m()
+        
+        return post
 
 
 class CommentForm(forms.ModelForm):

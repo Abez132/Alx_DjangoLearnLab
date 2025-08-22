@@ -7,13 +7,14 @@ from django.contrib import messages
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.http import HttpResponseRedirect
-from .models import Post, Comment
+from django.db.models import Q
+from .models import Post, Comment, Tag
 from .forms import CustomUserCreationForm, UserProfileForm, PostForm, CommentForm
 
 
 class PostListView(ListView):
     """
-    View to display a list of all blog posts.
+    View to display a list of all blog posts with search functionality.
     Accessible to all users (no authentication required).
     """
     model = Post
@@ -21,6 +22,25 @@ class PostListView(ListView):
     context_object_name = 'posts'
     ordering = ['-published_date']
     paginate_by = 10
+    
+    def get_queryset(self):
+        """Filter posts based on search query."""
+        queryset = super().get_queryset()
+        query = self.request.GET.get('q')
+        if query:
+            queryset = queryset.filter(
+                Q(title__icontains=query) |
+                Q(content__icontains=query) |
+                Q(tags__name__icontains=query)
+            ).distinct()
+        return queryset
+    
+    def get_context_data(self, **kwargs):
+        """Add search query and tags to context."""
+        context = super().get_context_data(**kwargs)
+        context['search_query'] = self.request.GET.get('q', '')
+        context['all_tags'] = Tag.objects.all().order_by('name')
+        return context
 
 
 class PostDetailView(DetailView):
@@ -282,4 +302,60 @@ def add_comment(request, post_id):
     return render(request, 'blog/add_comment.html', {
         'form': form,
         'post': post
+    })
+
+
+# Tag and Search Views
+
+class TagPostListView(ListView):
+    """
+    View to display posts filtered by a specific tag.
+    Accessible to all users (no authentication required).
+    """
+    model = Post
+    template_name = 'blog/tag_posts.html'
+    context_object_name = 'posts'
+    paginate_by = 10
+    
+    def get_queryset(self):
+        """Filter posts by the specified tag."""
+        self.tag = get_object_or_404(Tag, name=self.kwargs['tag_name'])
+        return Post.objects.filter(tags=self.tag).order_by('-published_date')
+    
+    def get_context_data(self, **kwargs):
+        """Add tag information to context."""
+        context = super().get_context_data(**kwargs)
+        context['tag'] = self.tag
+        context['all_tags'] = Tag.objects.all().order_by('name')
+        return context
+
+
+def search_posts(request):
+    """
+    Function-based view for advanced search functionality.
+    Allows searching by title, content, tags, and author.
+    """
+    query = request.GET.get('q', '')
+    posts = []
+    all_tags = Tag.objects.all().order_by('name')
+    
+    if query:
+        # Search in title, content, tags, and author
+        posts = Post.objects.filter(
+            Q(title__icontains=query) |
+            Q(content__icontains=query) |
+            Q(tags__name__icontains=query) |
+            Q(author__username__icontains=query)
+        ).distinct().order_by('-published_date')
+        
+        # Add search result count to messages
+        if posts:
+            messages.info(request, f'Found {posts.count()} post(s) matching "{query}"')
+        else:
+            messages.warning(request, f'No posts found matching "{query}"')
+    
+    return render(request, 'blog/search_results.html', {
+        'posts': posts,
+        'query': query,
+        'all_tags': all_tags
     })

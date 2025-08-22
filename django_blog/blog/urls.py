@@ -15,6 +15,10 @@ urlpatterns = [
     path('comment/<int:pk>/delete/', views.CommentDeleteView.as_view(), name='comment_delete'),
     path('post/<int:post_id>/comments/add/', views.add_comment, name='add_comment'),
     
+    # Tag and Search operations
+    path('tags/<str:tag_name>/', views.TagPostListView.as_view(), name='tag_posts'),
+    path('search/', views.search_posts, name='search_posts'),
+    
     # Authentication
     path('register/', views.register, name='register'),
     path('login/', views.user_login, name='login'),

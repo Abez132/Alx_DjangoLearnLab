@@ -16,6 +16,17 @@
             {{ post.content|linebreaks }}
         </div>
         
+        <!-- Tags Display -->
+        {% if post.tags.all %}
+            <div class="post-tags">
+                <strong>Tags:</strong>
+                {% for tag in post.tags.all %}
+                    <a href="{% url 'tag_posts' tag.name %}" class="tag-link">{{ tag.name }}</a>
+                    {% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
+        
         <div class="post-actions">
             <a href="{% url 'post_list' %}" class="btn btn-secondary">Back to Posts</a>
             {% if user == post.author %}
