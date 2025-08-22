@@ -11,6 +11,7 @@ The project includes:
 - Basic templates for displaying blog posts
 - Static files (CSS, JavaScript)
 - Django admin configuration for managing blog posts
+- User authentication system (registration, login, logout, profile management)
 
 ## Project Structure
 
@@ -28,13 +29,17 @@ django_blog/
 │   ├── apps.py
 │   ├── models.py         # Data models (Post)
 │   ├── views.py          # Views
+│   ├── forms.py          # Forms
 │   ├── urls.py           # App URL routing
 │   └── migrations/       # Database migrations
 │       └── __init__.py
 ├── templates/            # HTML templates
 │   ├── base.html         # Base template
 │   └── blog/             # Blog templates
-│       └── post_list.html # Post list template
+│       ├── post_list.html # Post list template
+│       ├── register.html  # Registration template
+│       ├── login.html     # Login template
+│       ├── profile.html   # Profile template
 ├── static/               # Static files
 │   ├── css/              # CSS files
 │   │   └── style.css     # Main stylesheet
@@ -42,7 +47,8 @@ django_blog/
 │   │   └── script.js     # Main JavaScript file
 │   └── images/           # Image files
 ├── manage.py             # Django management script
-└── README.md             # This file
+├── README.md             # Project documentation
+└── AUTHENTICATION.md     # Authentication system documentation
 ```
 
 ## Setup Instructions
@@ -89,6 +95,25 @@ django_blog/
 - `published_date`: DateTimeField representing when the post was published (auto-set)
 - `author`: ForeignKey to Django's User model (one-to-many relationship)
 
+## Authentication System
+
+The blog includes a comprehensive user authentication system with:
+
+### Features
+- User registration with email
+- User login and logout
+- User profile management
+- Secure password handling
+- CSRF protection
+
+### URLs
+- `/register/` - User registration
+- `/login/` - User login
+- `/logout/` - User logout
+- `/profile/` - User profile management
+
+For detailed information about the authentication system, see [AUTHENTICATION.md](AUTHENTICATION.md)
+
 ## Admin Interface
 
 The Post model is registered in the Django admin with:
@@ -100,8 +125,11 @@ The Post model is registered in the Django admin with:
 
 ## Templates
 
-- `base.html`: Base template with common HTML structure
+- `base.html`: Base template with common HTML structure and navigation
 - `blog/post_list.html`: Template for displaying a list of blog posts
+- `blog/register.html`: Registration form template
+- `blog/login.html`: Login form template
+- `blog/profile.html`: Profile management template
 
 ## Static Files
 
